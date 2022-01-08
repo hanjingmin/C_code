@@ -1,0 +1,31 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{adaptive\PYGZus{}instance\PYGZus{}layer\PYGZus{}norm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{gamma}\PYG{p}{,} \PYG{n}{beta}\PYG{p}{,} \PYG{n}{smoothing}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{scope}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}instance\PYGZus{}layer\PYGZus{}norm\PYGZsq{}}\PYG{p}{):}
+    \PYG{k}{with} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{variable\PYGZus{}scope}\PYG{p}{(}\PYG{n}{scope}\PYG{p}{):}
+        \PYG{n}{ch} \PYG{o}{=} \PYG{n}{x}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{eps} \PYG{o}{=} \PYG{l+m+mf}{1e\PYGZhy{}5}
+        \PYG{c+c1}{\PYGZsh{} 计算Instance mean，sigma and ins}
+        \PYG{n}{ins\PYGZus{}mean}\PYG{p}{,} \PYG{n}{ins\PYGZus{}sigma} \PYG{o}{=} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{moments}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{axes}\PYG{o}{=}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{],} \PYG{n}{keep\PYGZus{}dims}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{x\PYGZus{}ins} \PYG{o}{=} \PYG{p}{(}\PYG{n}{x} \PYG{o}{\PYGZhy{}} \PYG{n}{ins\PYGZus{}mean}\PYG{p}{)} \PYG{o}{/} \PYG{p}{(}\PYG{n}{tf}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}\PYG{n}{ins\PYGZus{}sigma} \PYG{o}{+} \PYG{n}{eps}\PYG{p}{))}
+
+        \PYG{c+c1}{\PYGZsh{} 计算Layer mean，sigma and ln}
+        \PYG{n}{ln\PYGZus{}mean}\PYG{p}{,} \PYG{n}{ln\PYGZus{}sigma} \PYG{o}{=} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{moments}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{axes}\PYG{o}{=}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{],} \PYG{n}{keep\PYGZus{}dims}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{x\PYGZus{}ln} \PYG{o}{=} \PYG{p}{(}\PYG{n}{x} \PYG{o}{\PYGZhy{}} \PYG{n}{ln\PYGZus{}mean}\PYG{p}{)} \PYG{o}{/} \PYG{p}{(}\PYG{n}{tf}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}\PYG{n}{ln\PYGZus{}sigma} \PYG{o}{+} \PYG{n}{eps}\PYG{p}{))}
+
+        \PYG{c+c1}{\PYGZsh{} 给定rho的范围，smoothing控制rho的弹性范围}
+        \PYG{k}{if} \PYG{n}{smoothing}\PYG{p}{:}
+            \PYG{n}{rho} \PYG{o}{=} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{get\PYGZus{}variable}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}rho\PYGZdq{}}\PYG{p}{,} \PYG{p}{[}\PYG{n}{ch}\PYG{p}{],} \PYG{n}{initializer}\PYG{o}{=}\PYG{n}{tf}\PYG{o}{.}\PYG{n}{constant\PYGZus{}initializer}\PYG{p}{(}\PYG{l+m+mf}{0.9}\PYG{p}{),}
+                                  \PYG{n}{constraint}\PYG{o}{=}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{:} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{clip\PYGZus{}by\PYGZus{}value}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,}
+                                  \PYG{n}{clip\PYGZus{}value\PYGZus{}min}\PYG{o}{=}\PYG{l+m+mf}{0.0}\PYG{p}{,} \PYG{n}{clip\PYGZus{}value\PYGZus{}max}\PYG{o}{=}\PYG{l+m+mf}{0.9}\PYG{p}{))}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{rho} \PYG{o}{=} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{get\PYGZus{}variable}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}rho\PYGZdq{}}\PYG{p}{,} \PYG{p}{[}\PYG{n}{ch}\PYG{p}{],} \PYG{n}{initializer}\PYG{o}{=}\PYG{n}{tf}\PYG{o}{.}\PYG{n}{constant\PYGZus{}initializer}\PYG{p}{(}\PYG{l+m+mf}{1.0}\PYG{p}{),}
+                                  \PYG{n}{constraint}\PYG{o}{=}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{:} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{clip\PYGZus{}by\PYGZus{}value}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,}
+                                  \PYG{n}{clip\PYGZus{}value\PYGZus{}min}\PYG{o}{=}\PYG{l+m+mf}{0.0}\PYG{p}{,} \PYG{n}{clip\PYGZus{}value\PYGZus{}max}\PYG{o}{=}\PYG{l+m+mf}{1.0}\PYG{p}{))}
+
+        \PYG{c+c1}{\PYGZsh{} rho = tf.clip\PYGZus{}by\PYGZus{}value(rho \PYGZhy{} tf.constant(0.1), 0.0, 1.0)}
+
+        \PYG{n}{x\PYGZus{}hat} \PYG{o}{=} \PYG{n}{rho} \PYG{o}{*} \PYG{n}{x\PYGZus{}ins} \PYG{o}{+} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{n}{rho}\PYG{p}{)} \PYG{o}{*} \PYG{n}{x\PYGZus{}ln}
+
+        \PYG{n}{x\PYGZus{}hat} \PYG{o}{=} \PYG{n}{x\PYGZus{}hat} \PYG{o}{*} \PYG{n}{gamma} \PYG{o}{+} \PYG{n}{beta}
+
+        \PYG{k}{return} \PYG{n}{x\PYGZus{}hat}
+\end{Verbatim}
