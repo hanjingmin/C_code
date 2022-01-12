@@ -255,7 +255,7 @@ while (1)
 
 ### 经典面试题
 
-#### 1
+#### 1 堆区地址利用问题
 
 ```
 void * GetMemory(int **p)         
@@ -278,9 +278,10 @@ int main()
 }
 ```
 
-分析：整型情况
+分析：
 
 ```
+// 整型情况
 void GetMemory(int *p)          // 局部变量 栈区
 {  
     p = (int *)malloc(8);       // 动态内存 堆区
@@ -364,3 +365,43 @@ int main()
 }
 ```
 
+#### 2 .返回栈区地址问题
+
+```
+char * GetMemory(void)         
+{  
+    char p[] = "hello world";
+    return p;       
+}
+
+void Test(void)
+{
+    char *str = NULL;	   
+    str = GetMemory();
+    printf(str);
+}
+
+int main()
+{
+    Test();
+    return 0;
+}
+```
+
+#### 3. 
+
+```
+void  Test(void)
+{
+    char *str = (char *)malloc(100);
+    strcpy(str,"hello");
+    free(str);
+    if (str != NULL)
+    {
+        strcpy(str,"world");
+        printf(str);
+    }
+}
+```
+
+![image-20220111140845798](IMG/image-20220111140845798.png)
