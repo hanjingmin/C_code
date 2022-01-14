@@ -44,5 +44,5 @@ int main()
 	pfread = NULL;
 	printf("Successfully!\n");
 
-	return 0;
+	return 1;
 }

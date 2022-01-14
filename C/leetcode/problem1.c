@@ -28,7 +28,7 @@ int main(void)
     ret = twoSum(arr,sizeof(arr),target,&number);
     if (number == 0)
     {
-        printf("None");
+        printf("None\n");
     }
     else
     {
